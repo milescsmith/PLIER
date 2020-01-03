@@ -2,7 +2,7 @@
 % Please edit documentation in R/Allfuncs.R
 \name{combinePaths}
 \alias{combinePaths}
-\title{combines binary pathway matricies into one, rownames are matched by name}
+\title{combinePaths}
 \usage{
 combinePaths(...)
 }
@@ -10,5 +10,6 @@ combinePaths(...)
 \item{...}{binary pathway matricies}
 }
 \description{
-combines binary pathway matricies into one, rownames are matched by name
+combines binary pathway matricies into one, rownames are
+matched by name
 }

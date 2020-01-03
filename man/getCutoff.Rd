@@ -2,14 +2,15 @@
 % Please edit documentation in R/Allfuncs.R
 \name{getCutoff}
 \alias{getCutoff}
-\title{get the p-value cutoff for a specific FDR}
+\title{getCutoff}
 \usage{
 getCutoff(plierRes, fdr.cutoff = 0.01)
 }
 \arguments{
 \item{plierRes}{A PLIER result}
 
-\item{fdr.cutoff}{The cross-validation significance cutoff for a pathway to be considered for naming}
+\item{fdr.cutoff}{The cross-validation significance cutoff for a pathway to
+be considered for naming}
 }
 \description{
 get the p-value cutoff for a specific FDR

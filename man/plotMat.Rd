@@ -2,10 +2,16 @@
 % Please edit documentation in R/Allfuncs.R
 \name{plotMat}
 \alias{plotMat}
-\title{generic function to plot the non-zero elements of a sparse matrix}
+\title{plotMat}
 \usage{
-plotMat(matrix, scale = T, trim.names = 50, cutoff = NULL,
-  col.scale = NULL, ...)
+plotMat(
+  matrix,
+  scale = T,
+  trim.names = 50,
+  cutoff = NULL,
+  col.scale = NULL,
+  ...
+)
 }
 \arguments{
 \item{matrix}{the input matrix}
@@ -21,5 +27,6 @@ plotMat(matrix, scale = T, trim.names = 50, cutoff = NULL,
 \item{...}{additional argumend to be passed to pheatmap}
 }
 \description{
-generic function to plot the non-zero elements of a sparse matrix
+generic function to plot the non-zero elements of a sparse
+matrix
 }

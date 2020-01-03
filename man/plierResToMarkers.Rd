@@ -2,19 +2,24 @@
 % Please edit documentation in R/Allfuncs.R
 \name{plierResToMarkers}
 \alias{plierResToMarkers}
-\title{Creates a binary cell-type marker matrix using prior results. This matrix can be used for other downstream tasks that require cell-type markers, such as CellCODE}
+\title{plierResToMarkers}
 \usage{
 plierResToMarkers(plierRes, priorMat, num = 20, index = NULL)
 }
 \arguments{
 \item{plierRes}{A PLIER result}
 
-\item{priorMat}{the binary prior information matrix that was used to compute the plierResult. Including this insures that only the genes annotated to the pathway(s) are included}
+\item{priorMat}{the binary prior information matrix that was used to compute
+the plierResult. Including this insures that only the genes annotated to the
+pathway(s) are included}
 
 \item{num}{The number of marker genes to produce}
 
-\item{index}{The indecies of PLIER latent variables that are believed to represent cell-type proportions (as opposed to other sources of correlation)}
+\item{index}{The indecies of PLIER latent variables that are believed to
+represent cell-type proportions (as opposed to other sources of correlation)}
 }
 \description{
-Creates a binary cell-type marker matrix using prior results. This matrix can be used for other downstream tasks that require cell-type markers, such as CellCODE
+Creates a binary cell-type marker matrix using prior results.
+This matrix can be used for other downstream tasks that require
+cell-type markers, such as CellCODE
 }

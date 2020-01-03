@@ -2,7 +2,7 @@
 % Please edit documentation in R/Allfuncs.R
 \name{rowNorm}
 \alias{rowNorm}
-\title{z-score each row of the data}
+\title{rowNorm}
 \usage{
 rowNorm(x)
 }

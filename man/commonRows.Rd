@@ -2,7 +2,7 @@
 % Please edit documentation in R/Allfuncs.R
 \name{commonRows}
 \alias{commonRows}
-\title{returns the row names in common}
+\title{commonRows}
 \usage{
 commonRows(data1, data2)
 }

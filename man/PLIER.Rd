@@ -2,31 +2,54 @@
 % Please edit documentation in R/Allfuncs.R
 \name{PLIER}
 \alias{PLIER}
-\title{Main PLIER function}
+\title{PLIER}
 \usage{
-PLIER(data, priorMat, svdres = NULL, k = NULL, L1 = NULL, L2 = NULL,
-  L3 = NULL, frac = 0.7, max.iter = 350, trace = F, scale = T,
-  Chat = NULL, maxPath = 10, doCrossval = T, penalty.factor = rep(1,
-  ncol(priorMat)), glm_alpha = 0.9, minGenes = 10, tol = 1e-06,
-  seed = 123456, allGenes = F, rseed = NULL,
-  pathwaySelection = c("complete", "fast"))
+PLIER(
+  data,
+  priorMat,
+  svdres = NULL,
+  k = NULL,
+  L1 = NULL,
+  L2 = NULL,
+  L3 = NULL,
+  frac = 0.7,
+  max.iter = 350,
+  trace = F,
+  scale = T,
+  Chat = NULL,
+  maxPath = 10,
+  doCrossval = T,
+  penalty.factor = rep(1, ncol(priorMat)),
+  glm_alpha = 0.9,
+  minGenes = 10,
+  tol = 1e-06,
+  seed = 123456,
+  allGenes = F,
+  rseed = NULL,
+  pathwaySelection = c("complete", "fast")
+)
 }
 \arguments{
-\item{data}{the data to be processed with genes in rows and samples in columns. Should be z-scored or set scale=T}
+\item{data}{the data to be processed with genes in rows and samples in
+columns. Should be z-scored or set scale=T}
 
-\item{priorMat}{the binary prior information matrix with genes in rows and pathways/genesets in columns}
+\item{priorMat}{the binary prior information matrix with genes in rows and
+pathways/genesets in columns}
 
 \item{svdres}{Pre-computed result of the svd decomposition for data}
 
-\item{k}{The number of latent variables to return, leave as NULL to be set automatically using the num.pc "elbow" method}
+\item{k}{The number of latent variables to return, leave as NULL to be set
+automatically using the num.pc "elbow" method}
 
 \item{L1}{L1 constant, leave as NULL to automatically select a value}
 
 \item{L2}{L2 constant, leave as NULL to automatically select a value}
 
-\item{L3}{L3 constant, leave as NULL to automatically select a value. Sparsity in U should be instead controlled by setting frac}
+\item{L3}{L3 constant, leave as NULL to automatically select a value.
+Sparsity in U should be instead controlled by setting frac}
 
-\item{frac}{The fraction of LVs that should have at least 1 prior inforamtion association, used to automatically set L3}
+\item{frac}{The fraction of LVs that should have at least 1 prior
+inforamtion association, used to automatically set L3}
 
 \item{max.iter}{Maximum number of iterations to perform}
 
@@ -34,27 +57,39 @@ PLIER(data, priorMat, svdres = NULL, k = NULL, L1 = NULL, L2 = NULL,
 
 \item{scale}{Z-score the data before processing}
 
-\item{Chat}{A ridge inverse of priorMat, used to select active pathways, expensive to compute so can be precomputed when running PLIER multiple times}
+\item{Chat}{A ridge inverse of priorMat, used to select active pathways,
+expensive to compute so can be precomputed when running PLIER multiple times}
 
 \item{maxPath}{The maximum number of active pathways per latent variable}
 
-\item{doCrossval}{Whether or not to do real cross-validation with held-out pathway genes. Alternatively, all gene annotations are used and only pseudo-crossvalidation is done. The latter option may be preferable if some pathways of interest have few genes.}
+\item{doCrossval}{Whether or not to do real cross-validation with held-out
+pathway genes. Alternatively, all gene annotations are used and only
+pseudo-crossvalidation is done. The latter option may be preferable if some
+pathways of interest have few genes.}
 
-\item{penalty.factor}{A vector equal to the number of columns in priorMat. Sets relative penalties for different pathway/geneset subsets. Lower penalties will make a pathway more likely to be used. Only the relative values matter. Internally rescaled.}
+\item{penalty.factor}{A vector equal to the number of columns in priorMat.
+Sets relative penalties for different pathway/geneset subsets. Lower
+penalties will make a pathway more likely to be used. Only the relative
+values matter. Internally rescaled.}
 
 \item{glm_alpha}{Set the alpha for elastic-net}
 
-\item{minGenes}{The minimum number of genes a pathway must have to be considered}
+\item{minGenes}{The minimum number of genes a pathway must have to be
+considered}
 
 \item{tol}{Convergence threshold}
 
 \item{seed}{Set the seed for pathway cross-validation}
 
-\item{allGenes}{Use all genes. By default only genes in the priorMat matrix are used.}
+\item{allGenes}{Use all genes. By default only genes in the priorMat
+matrix are used.}
 
 \item{rseed}{Set this option to use a random initialization, instead of SVD}
 
-\item{pathwaySelection}{Pathways to be optimized with elstic-net penalty are preselected based on ridge regression results. "Complete" uses all top  pathways to fit individual LVs. "Fast" uses only the top pathways for the single LV in question.}
+\item{pathwaySelection}{Pathways to be optimized with elstic-net penalty are
+preselected based on ridge regression results. "Complete" uses all top
+pathways to fit individual LVs. "Fast" uses only the top pathways for the
+single LV in question.}
 }
 \description{
 Main PLIER function

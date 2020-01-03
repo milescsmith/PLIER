@@ -2,19 +2,22 @@
 % Please edit documentation in R/Allfuncs.R
 \name{num.pc}
 \alias{num.pc}
-\title{estimates the number of 'significant' principle components for the SVD decomposition -- this is the minimum k for PLIER}
+\title{num.pc}
 \usage{
 num.pc(data, method = "elbow", B = 20, seed = NULL)
 }
 \arguments{
-\item{data}{the same data as to be used for PLIER (z-score recommended) or alternatively the result of an svd calculation}
+\item{data}{the same data as to be used for PLIER (z-score recommended) or
+alternatively the result of an svd calculation}
 
-\item{method}{Either "eblow" (fast) or "permutation" (slower, but less heuristic)}
+\item{method}{Either "eblow" (fast) or "permutation" (slower, but less
+heuristic)}
 
 \item{B}{number of permutations}
 
 \item{seed}{seed for reproducibility}
 }
 \description{
-estimates the number of 'significant' principle components for the SVD decomposition -- this is the minimum k for PLIER
+estimates the number of 'significant' principle components for
+the SVD decomposition -- this is the minimum k for PLIER
 }

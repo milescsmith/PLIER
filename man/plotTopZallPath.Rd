@@ -2,28 +2,44 @@
 % Please edit documentation in R/Allfuncs.R
 \name{plotTopZallPath}
 \alias{plotTopZallPath}
-\title{visualize the top genes contributing to the LVs similarily to \code{\link{plotTopZ}}. However in this case all the pathways contributing to each LV are show seperatly. Useful for seeing pathway usage for a single LV or understading the differences between two closely related LVs}
+\title{plotTopZallPath}
 \usage{
-plotTopZallPath(plierRes, data, priorMat, top = 10, index = NULL,
-  regress = F, fdr.cutoff = 0.2, ...)
+plotTopZallPath(
+  plierRes,
+  data,
+  priorMat,
+  top = 10,
+  index = NULL,
+  regress = F,
+  fdr.cutoff = 0.2,
+  ...
+)
 }
 \arguments{
 \item{plierRes}{the result returned by PLIER}
 
-\item{data}{the data to be displayed in a heatmap, typically the z-scored input data (or some subset thereof)}
+\item{data}{the data to be displayed in a heatmap, typically the z-scored
+input data (or some subset thereof)}
 
-\item{priorMat}{the same gene by geneset binary matrix that was used to run PLIER}
+\item{priorMat}{the same gene by geneset binary matrix that was used to run
+PLIER}
 
 \item{top}{the top number of genes to use}
 
 \item{index}{the subset of LVs to display}
 
-\item{regress}{remove the effect of all other LVs before plotting top genes, will take longer but can be useful to see distinct patterns in highly correlated genes.}
+\item{regress}{remove the effect of all other LVs before plotting top genes,
+will take longer but can be useful to see distinct patterns in highly
+correlated genes.}
 
 \item{fdr.cutoff}{Significance cutoff for a pathway to be plotted}
 
-\item{...}{Additional arguments to be passed to pheatmap, such as a column annotation data.frame}
+\item{...}{Additional arguments to be passed to pheatmap, such as a column
+annotation data.frame}
 }
 \description{
-visualize the top genes contributing to the LVs similarily to \code{\link{plotTopZ}}. However in this case all the pathways contributing to each LV are show seperatly. Useful for seeing pathway usage for a single LV or understading the differences between two closely related LVs
+visualize the top genes contributing to the LVs similarily to
+\code{\link[=plotTopZ]{plotTopZ()}}. However in this case all the pathways contributing
+to each LV are show seperatly. Useful for seeing pathway usage for a single
+LV or understading the differences between two closely related LVs
 }

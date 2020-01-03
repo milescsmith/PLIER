@@ -2,15 +2,18 @@
 % Please edit documentation in R/Allfuncs.R
 \name{computeChat}
 \alias{computeChat}
-\title{Computes the ridge pseudo-inverse of the prior information matrix. Used internally by PLIER but can be precomputed if running PLIER multiple times.}
+\title{computeChat}
 \usage{
 computeChat(gsMat, lambda = 5)
 }
 \arguments{
-\item{gsMat}{The prior information matrix. The genes have to match the gene expression data to be analyzed exactly (same genes and same order(}
+\item{gsMat}{The prior information matrix. The genes have to match the gene
+expression data to be analyzed exactly (same genes and same order(}
 
 \item{lambda}{The regularization paramter}
 }
 \description{
-Computes the ridge pseudo-inverse of the prior information matrix. Used internally by PLIER but can be precomputed if running PLIER multiple times.
+Computes the ridge pseudo-inverse of the prior information
+matrix. Used internally by PLIER but can be precomputed if running PLIER
+multiple times.
 }

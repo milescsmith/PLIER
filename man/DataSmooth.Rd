@@ -2,7 +2,7 @@
 % Please edit documentation in R/Allfuncs.R
 \name{DataSmooth}
 \alias{DataSmooth}
-\title{SVD based smoothing for single cell RNAseq data}
+\title{DataSmooth}
 \usage{
 DataSmooth(svdres, k)
 }
