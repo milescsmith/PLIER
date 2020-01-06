@@ -17,6 +17,9 @@ Imports:
   glmnet,
   knitr,
   rsvd,
-  qvalue
+  qvalue,
+  matrixStats,
+  Rfast,
+  parallelDist
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

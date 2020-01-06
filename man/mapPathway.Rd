@@ -4,12 +4,12 @@
 \alias{mapPathway}
 \title{mapPathway}
 \usage{
-mapPathway(pathway, map)
+mapPathway(pathway, mapping)
 }
 \arguments{
 \item{pathway}{pathway matrix}
 
-\item{map}{Gene name map. A single column data.frame or matrix with map-from
+\item{mapping}{Gene name map. A single column data.frame or matrix with map-from
 in row names and map-to in the first column}
 }
 \description{

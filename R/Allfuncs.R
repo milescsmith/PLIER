@@ -21,6 +21,9 @@ require(qvalue)
 #' @param target.frac The target fraction on non-zero columns of
 #' @param L3 Solve with a given L3, no search
 #' 
+#' @importFrom Rfast colRanks rowMins colsums rowsums
+#' @importFrom purrr map map_dfc
+#' 
 #' @keywords internal
 #' 
 solveU <- function(Z,
@@ -33,66 +36,69 @@ solveU <- function(Z,
                    target.frac = 0.7,
                    L3 = NULL) {
   Ur <- Chat %*% Z # get U by OLS
-  Ur <- apply(-Ur, 2, rank) # rank
-  Urm <- apply(Ur, 1, min)
+  Ur <- colRanks(x = -Ur, method = "max", parallel = TRUE) # rank
+  Urm <- rowMins(x = Ur)
 
   U <- matrix(0, nrow = ncol(priorMat), ncol = ncol(Z))
   if (is.null(L3)) {
     lambdas <- exp(seq(-4, -12, -0.125))
-    results <- list()
-    lMat <- matrix(nrow = length(lambdas), ncol = ncol(Z))
-    for (i in 1:ncol(Z)) {
+    #lMat <- matrix(nrow = length(lambdas), ncol = ncol(Z))
+    
+    results <- map(.x = 1:ncol(Z), .f = function(i){
       if (pathwaySelection == "fast") {
         iip <- which(Ur[, i] <= maxPath)
       } else {
         iip <- which(Urm <= maxPath)
       } # else
-      gres <- glmnet(y = Z[, i], x = priorMat[, iip], penalty.factor = penalty.factor[iip], alpha = glm_alpha, lower.limits = 0, lambda = lambdas, intercept = T, standardize = F)
+      gres <- glmnet(y = Z[, i],
+                     x = priorMat[, iip],
+                     penalty.factor = penalty.factor[iip],
+                     alpha = glm_alpha,
+                     lower.limits = 0,
+                     lambda = lambdas,
+                     intercept = T,
+                     standardize = F)
       # plot(gres)
       gres$iip <- iip
-      lMat[, i] <- colSums(as.matrix(gres$beta) > 0)
-      results[[i]] <- gres
-    }
-    fracs <- rowMeans(lMat > 0)
+      gres
+    })
+    
+    lMat <- as.matrix(map_dfc(1:ncol(Z), function(i) {
+      colsums(as.matrix(results[[i]]$beta) > 0, parallel = TRUE)
+    }))
+    
+    fracs <- rowmeans(lMat > 0)
     iibest <- which.min(abs(target.frac - fracs))
-    iibest
-
 
     for (i in 1:ncol(Z)) {
       U[results[[i]]$iip, i] <- results[[i]]$beta[, iibest]
-    } # for i
+    }
+    
     rownames(U) <- colnames(priorMat)
     colnames(U) <- 1:ncol(Z)
 
-    Utmp <- solveU(Z, Chat, priorMat, penalty.factor, pathwaySelection = "fast", glm_alpha = 0.9, maxPath = 10, L3 = lambdas[iibest])
-
-    # stop()
     return(list(U = U, L3 = lambdas[iibest]))
   }
   else { # do one fit with a given lambda
-    for (i in 1:ncol(Z)) {
-      if (pathwaySelection == "fast") {
-        iip <- which(Ur[, i] <= maxPath)
-      } else {
-        iip <- which(Urm <= maxPath)
-      } # else
-      gres <- glmnet(y = Z[, i], x = priorMat[, iip], penalty.factor = penalty.factor[iip], alpha = glm_alpha, lower.limits = 0, lambda = L3, intercept = T, standardize = F)
-      U[iip, i] <- as.numeric(gres$beta)
-    }
-
+      U <- as.matrix(map_dfc(.x = 1:ncol(Z), .f = function(i) {
+        current_col <- U[, i]
+        if (pathwaySelection == "fast") {
+          iip <- which(current_col <= maxPath)
+        } else {
+          iip <- which(Urm <= maxPath)
+        } # else
+        gres <- glmnet(y = Z[, i],
+                       x = priorMat[, iip],
+                       penalty.factor = penalty.factor[iip],
+                       alpha = glm_alpha,
+                       lower.limits = 0,
+                       lambda = L3,
+                       intercept = T,
+                       standardize = F)
+      current_col <- replace(current_col, iip, as.numeric(gres$beta))
+    }))
     return(U)
   }
-}
-
-#' @title wrapString
-#' 
-#' @keywords  internal
-#' 
-wrapString <- function(string, width = 30) {
-  string <- lapply(string, function(s) {
-    paste(strwrap(gsub("_", " ", s), width = width), collapse = "\n")
-  })
-  unlist(string)
 }
 
 #' @title QV
@@ -112,14 +118,6 @@ QV <- function(pval) {
   }
 }
 
-#' @title mydist
-#' 
-#' @keywords  internal
-#' 
-mydist <- function(x) {
-  as.dist(1 - t(cor(t(x))))
-}
-
 #' @title BH
 #' 
 #' @keywords  internal
@@ -137,25 +135,23 @@ BH <- function(pval) {
 #' @export
 #' 
 DataSmooth <- function(svdres, k) {
-  k <- 1:k
-  ds <- sweep(svdres$u[, k], 2, svdres$d[k], "*") %*% t(svdres$v[, k])
-  ds
+  return(tcrossprod(t(t(svdres$u[, 1:k]) * svdres$d[1:k]), svdres$v[, 1:k]))
 }
 
 #' @title mapPathway
 #' @description Rename pathway matrix gene names. Useful for species conversion
 #' 
 #' @param pathway pathway matrix
-#' @param map Gene name map. A single column data.frame or matrix with map-from
+#' @param mapping Gene name map. A single column data.frame or matrix with map-from
 #' in row names and map-to in the first column
 #' 
 #' @export
 #' 
-mapPathway <- function(pathway, map) {
-  cm <- commonRows(map, pathway)
+mapPathway <- function(pathway, mapping) {
+  cm <- commonRows(mapping, pathway)
   show(length(cm))
   pathway <- pathway[cm, ]
-  rownames(pathway) <- map[cm, 1]
+  rownames(pathway) <- mapping[cm, 1]
   pathway
 }
 
@@ -174,7 +170,10 @@ mapPathway <- function(pathway, map) {
 #' 
 #' @export
 #' 
-plierResToMarkers <- function(plierRes, priorMat, num = 20, index = NULL) {
+plierResToMarkers <- function(plierRes,
+                              priorMat,
+                              num = 20,
+                              index = NULL) {
   ii <- which(colSums(plierRes$U) > 0)
   if (!is.null(index)) {
     ii <- intersect(ii, index)
@@ -333,7 +332,7 @@ nameB <- function(plierRes, top = 1, fdr.cutoff = 0.01, use = c("coef", "AUC")) 
 #' @export
 #' 
 computeChat <- function(gsMat, lambda = 5) {
-  Chat <- pinv.ridge(crossprod(gsMat, ), lambda) %*% (t(gsMat))
+  Chat <- tcrossprod(pinv.ridge(crossprod(gsMat, ), lambda), gsMat)
 }
 
 #' @keywords internal
@@ -793,6 +792,7 @@ plotU <- function(plierRes,
 #' @param ... Additional arguments to be passed to pheatmap, such as a column 
 #' annotation data.frame (annotation_col). See ?pheatmap for details.
 #' 
+#' @importFrom pheatmap pheatmap
 #' @export
 #' 
 plotTopZ <- function(plierRes, 
@@ -858,10 +858,17 @@ plotTopZ <- function(plierRes,
 
   maxval <- max(abs(toPlot))
 
-  pheatmap(toPlot, breaks = seq(-maxval, maxval, length.out = 99), color = colorpanel(100, "green", "white", "red"), annotation_row = nncol, show_colnames = F, annotation_colors = anncol, ...)
+  pheatmap(mat = toPlot,
+           breaks = seq(-maxval, maxval, length.out = 99),
+           color = colorpanel(100, "green", "white", "red"),
+           annotation_row = nncol,
+           show_colnames = F,
+           annotation_colors = anncol, ...)
 }
 
 #' @title colSumNorm
+#' 
+#' @importFrom Matrix t
 #' 
 #' @keywords internal
 #' 
@@ -869,10 +876,10 @@ colSumNorm <- function(matrix, return.all = F) {
   ss <- sqrt(colSums(matrix^2))
   ss[ss < 1e-16] <- 1
   if (!return.all) {
-    return(sweep(matrix, 2, ss, "/"))
+    return(t(t(matrix)/ss))
   }
   else {
-    return(list(mat = sweep(matrix, 2, ss, "/"), ss = ss))
+    return(list(mat = t(t(matrix)/ss), ss = ss))
   }
 }
 
@@ -894,14 +901,12 @@ commonRows <- function(data1, data2) {
 #' 
 #' @param x gene-expression matrix, with genes in rows
 #' 
+#' @importFrom Rfast rowmeans rowVars
 #' @export
 #' 
-rowNorm <- function(x) {
-  s <- apply(x, 1, sd)
-  m <- apply(x, 1, mean)
-  x <- sweep(x, 1, m)
-  x <- sweep(x, 1, s, "/")
-  x
+rowNorm <- function(x){
+  x <- (x - rowmeans(x))/rowVars(x, std = TRUE, parallel = TRUE)
+  return(x)
 }
 
 #' @title num.pc
@@ -1016,6 +1021,10 @@ pinv.ridge <- function(m, alpha = 0) {
 #' @param col.scale custom color scale
 #' @param cutoff Sets values (both positive and negative) bellow this number to 0
 #' @param ... additional argumend to be passed to pheatmap
+#' 
+#' @importFrom pheatmap pheatmap
+#' @importFrom parallelDist parallelDist
+#' @importFrom Rfast colMaxs
 #'
 #' @export
 #'
@@ -1034,16 +1043,8 @@ plotMat <- function(matrix,
   matrix <- matrix[iirow <- rowSums(abs(matrix)) > 0, ]
   matrix <- matrix[, iicol <- colSums(abs(matrix)) > 0]
 
-  mydistBin <- function(x) {
-    dist(abs(sign(x)))
-  }
-
-  mydistBin <- function(x) {
-    dist(abs(sign(x)))
-  }
-
   if (scale) {
-    aa <- apply(abs(matrix), 2, max)
+    aa <- colMaxs(alpha, value = TRUE, parallel = TRUE)
     aa[aa == 0] <- 1
 
     matrix <- sweep(matrix, 2, aa, "/")
@@ -1058,7 +1059,7 @@ plotMat <- function(matrix,
   }
 
   pheatmap(matrix, color = mycol, clustering_callback = function(h, d) {
-    hclust(mydistBin(d), method = "single")
+    hclust(parallelDist(abs(sign(d)), ), method = "single")
   }, ...)
 
   return(invisible(list(iirow = iirow, iicol = iicol)))
@@ -1119,9 +1120,6 @@ plotTopZallPath <- function(plierRes,
   pathMat <- matrix(nrow = 0, ncol = length(pathsUsed))
 
   colnames(pathMat) <- strtrim(names(pathsUsed), 40)
-
-
-  #  colnames(pathMat) = wrapString(names(pathsUsed), 40)
 
   for (i in 1:length(ii)) {
     nn <- c(nn, nntmp <- names(which(tmp[, i] <= top)))
